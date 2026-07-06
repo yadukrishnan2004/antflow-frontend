@@ -277,16 +277,19 @@ h1, h2, h3, h4, h5, h6 {
   border-radius: var(--radius-sm);
 }
 
-/* Theme Transition Overlay */
+/* Theme Transition Overlay - Blended Glass Effect */
 .theme-ripple-overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
-  z-index: 99999;
+  z-index: 999999;
   pointer-events: none;
-  background-color: var(--bg-base);
+  background-color: var(--text-primary);
+  mix-blend-mode: difference;
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
   will-change: clip-path;
 }
 

@@ -15,42 +15,35 @@ const NAV_LINKS = [
 /**
  * Navbar — top navigation bar.
  *
- * Implements hardware-accelerated circular clip-path transition on theme toggle.
+ * Implements hardware-accelerated circular clip-path transition on theme toggle
+ * with color blending to prevent visual flash.
  */
 export default function Navbar() {
   const { isDark, isSystem, toggleTheme, themeMode } = useTheme()
   const containerRef = useRef(null)
   const { contextSafe } = useGSAP({ scope: containerRef })
 
-  // Hardware-accelerated clip-path wave transition
+  // Hardware-accelerated clip-path wave transition with difference blend inversion
   const handleThemeToggle = contextSafe((e) => {
     const x = e.clientX || window.innerWidth / 2
     const y = e.clientY || window.innerHeight / 2
     const maxRadius = Math.hypot(window.innerWidth, window.innerHeight)
 
-    // 1. Create overlay container matching destination colors
+    // 1. Create overlay container
     const overlay = document.createElement('div')
     overlay.className = 'theme-ripple-overlay'
-    
-    // Preview destination background color
-    const currentTheme = document.documentElement.getAttribute('data-theme')
-    const nextTheme = currentTheme === 'dark' ? 'light' : 'dark'
-    
-    overlay.style.backgroundColor = nextTheme === 'light' 
-      ? 'hsl(220, 14%, 98%)' 
-      : 'hsl(220, 17%, 6%)'
-      
     overlay.style.clipPath = `circle(0% at ${x}px ${y}px)`
     document.body.appendChild(overlay)
 
-    // 2. Animate clip-path circle expansion outwards from click coordinate
+    // 2. Animate clip-path circle expansion. Difference blend mode will invert colors under the wave.
     gsap.to(overlay, {
       clipPath: `circle(${maxRadius * 1.2}px at ${x}px ${y}px)`,
-      duration: 0.85,
+      duration: 0.65,
       ease: 'power3.inOut',
       onComplete: () => {
-        toggleTheme() // Apply actual state flip inside React Context
-        overlay.remove() // Garbage collection
+        // 3. Flip React state at the absolute end of the transition
+        toggleTheme()
+        overlay.remove() // Instantly remove, showing the fully rendered state in the target theme
       }
     })
   })
